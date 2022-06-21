@@ -1,0 +1,120 @@
+1. Selezionare ni corsi con relativi corsi di laurea e dipartimenti
+
+SELECT `courses`.`name` AS `nome_corso`, `degrees`.`name` as `nome_corso_di_laurea`, `departments`.`name` as `nome_dipartimento`
+FROM `courses`
+INNER JOIN `degrees`
+ON `courses`.`degree_id` = `degrees`.`id`
+INNER JOIN `departments`
+ON `degrees`.`department_id` = `departments`.`id`;
+
+2. Prendere solo quei corsi che appartengono al corso di laurea in biologia molecolare
+
+SELECT `courses`.`name` AS `nome_corso`, `degrees`.`name` as `nome_corso_di_laurea`, `departments`.`name` as `nome_dipartimento`
+FROM `courses`
+INNER JOIN `degrees`
+ON `courses`.`degree_id` = `degrees`.`id`
+INNER JOIN `departments`
+ON `degrees`.`department_id` = `departments`.`id`
+WHERE `degrees`.`name` = 'Corso di Laurea in Biologia molecolare';
+
+
+3. Quanti sono i corsi per livello di corso di laurea
+
+SELECT COUNT(`courses`.`id`), `degrees`.`level`
+FROM `courses`
+INNER JOIN `degrees`
+ON `courses`.`degree_id` = `degrees`.`id`
+GROUP BY `degrees`.`level`;
+
+4. Selezionare gli studenti che non hanno dato nessun esame (usando left join)
+
+SELECT *
+FROM `students`
+LEFT JOIN `exam_student`
+ON `students`.`id` = `exam_student`.`student_id`
+WHERE `exam_student`.`exam_id` IS NULL;
+
+___________________________________________________________________
+
+1. Selezionare tutti i corsi del Corso di Laurea in Informatica (22)
+
+Come # 2 precedente
+
+2. Selezionare le informazioni sul corso con id = 144, con tutti i relativi appelli d’esame
+
+SELECT * 
+FROM `courses`
+INNER JOIN `exams`
+ON `courses`.`id` = `exams`.`course_id`
+WHERE `courses`.`id` = 144;
+
+
+3. Selezionare a quale dipartimento appartiene il Corso di Laurea in Diritto dell'Economia (Dipartimento di Scienze politiche, giuridiche e studi internazionali)
+
+SELECT `degrees`.`name` AS `degree_name`, `degrees`.`level`, `departments`.`name` AS `department_name`, `departments`.`address`
+FROM `degrees`
+INNER JOIN `departments`
+ON `degrees`.`department_id` = `departments`.`id`
+WHERE `degrees`.`name` = 'Corso di Laurea in Diritto dell\'Economia';
+
+
+4. Selezionare tutti gli appelli d'esame del Corso di Laurea Magistrale in Fisica del primo anno
+
+SELECT *
+FROM `exams`
+INNER JOIN `courses`
+ON `exams`.`course_id` = `courses`.`id`
+INNER JOIN `degrees`
+ON `courses`.`degree_id` = `degrees`.id
+WHERE `degrees`.`name` = 'Corso di Laurea Magistrale in Fisica'
+AND `courses`.`year` = 1
+ORDER by `courses`.`year` DESC;
+
+
+5. Selezionare tutti i docenti che insegnano nel Corso di Laurea in Lettere (21)
+
+SELECT DISTINCT `teachers`.`id`, `teachers`.`name`, `teachers`.`surname`
+FROM `teachers`
+INNER JOIN `course_teacher`
+ON `teachers`.`id` = `course_teacher`.`teacher_id`
+INNER JOIN `courses`
+ON `course_teacher`.`course_id` = `courses`.`id`
+INNER JOIN `degrees`
+ON `courses`.`degree_id` = `degrees`.`id`
+WHERE `degrees`.`name` = 'Corso di Laurea in Lettere';
+
+
+6. Selezionare il libretto universitario di Mirco Messina (matricola n. 620320)
+
+nome_corso | cfu | data_esame | voto | 
+
+SELECT `courses`.`name`, `courses`.`cfu`, `exams`.`date`, `exam_student`.`vote` 
+FROM `students`
+INNER JOIN `exam_student`
+ON `students`.`id` = `exam_student`.`student_id`
+INNER JOIN `exams`
+ON `exam_student`.`exam_id` = `exams`.`id`
+INNER JOIN `courses`
+ON `exams`.`course_id` = `courses`.`id`
+WHERE `students`.`registration_number` = 620320
+AND `exam_student`.`vote` >= 18;
+
+
+7. Selezionare il voto medio di superamento d'esame per ogni corso, con anche i dati del corso di laurea associato, ordinati per media voto decrescente
+
+nome_corso | voto_medio |
+
+SELECT AVG(`exam_student`.`vote`) as `voto_medio`, `courses`.`name` as `nome_corso`, `degrees`.`name` as `nome_corso_di_laurea`, `degrees`.`level`
+FROM `exam_student`
+INNER JOIN `exams`
+ON `exam_student`.`exam_id` = `exams`.`id`
+INNER JOIN `courses`
+ON `exams`.`course_id` = `courses`.`id`
+INNER JOIN `degrees`
+ON `courses`.`degree_id` = `degrees`.`id`
+WHERE `exam_student`.`vote` >= 18
+GROUP BY `courses`.`id`
+ORDER by `voto_medio` DESC;
+
+
+
